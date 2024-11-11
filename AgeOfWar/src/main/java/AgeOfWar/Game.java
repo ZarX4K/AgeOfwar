@@ -10,6 +10,6 @@ public class Game {
         MainLogic logic = new MainLogic(); // Create the MainLogic object
         BackGroundScreens backGroundScreens = new BackGroundScreens(); // Create the Background Screens
         // Create the GameGraphics window, passing the mainLogic object
-        GameGraphics window = new GameGraphics(logic, backGroundScreens);
+        GameGraphics window = new GameGraphics();
     }
 }

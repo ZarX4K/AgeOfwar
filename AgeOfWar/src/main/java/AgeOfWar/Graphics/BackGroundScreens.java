@@ -25,7 +25,7 @@ public class BackGroundScreens extends JPanel {
     }
     private void loadBackgroundScreenImage() {
         try {
-                backgroundImage = ImageIO.read(getClass().getResourceAsStream("/Background.png"));
+                backgroundImage = ImageIO.read(getClass().getResourceAsStream("/GameBackground.png"));
         } catch (IOException e) {
             e.printStackTrace();
         }
