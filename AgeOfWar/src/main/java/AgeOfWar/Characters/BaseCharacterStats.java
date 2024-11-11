@@ -26,7 +26,7 @@ public class BaseCharacterStats {
     }
 
     private Image loadImage(String imagePath) {
-        ImageIcon ii = new ImageIcon(getClass().getResource(imagePath));
+        ImageIcon ii = new ImageIcon(getClass().getResource("/"));
         return ii.getImage();
     }
 }

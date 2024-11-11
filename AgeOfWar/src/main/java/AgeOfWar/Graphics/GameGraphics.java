@@ -6,7 +6,7 @@ import javax.swing.*;
 import java.awt.*;
 
 public class GameGraphics extends JFrame {
-
+    private MainLogic mainLogic;
     public GameGraphics(MainLogic mainLogic, BackGroundScreens backGroundScreens) {
         setTitle("AGE OF WAR");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -17,6 +17,9 @@ public class GameGraphics extends JFrame {
         pack();
         setLocationRelativeTo(null);
         setVisible(true);
+        mainLogic.setGamePanel(gamePanel);
+        mainLogic.initialize();
+        mainLogic.startGameThread();
 
     }
 
@@ -46,4 +49,5 @@ public class GameGraphics extends JFrame {
             }
         }
     }
+
 }

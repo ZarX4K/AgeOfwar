@@ -1,36 +1,41 @@
 package AgeOfWar.Logic;
 
+import AgeOfWar.Characters.Archer;
+import AgeOfWar.Characters.Knight;
 import AgeOfWar.Graphics.GameGraphics;
 
 import javax.swing.*;
+import javax.xml.stream.events.Characters;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 
-public class MainLogic {
-    public GameGraphics.GamePanel gamePanel; // Reference to the game panel
+public class MainLogic implements Runnable{
+    private Knight knight;
+    private JPanel gamePanel;
+    private Thread gameThread;
+    private double delta = 0;
+    private long currentTime;
 
-    private JPanel gameWindow;
     private int gameState = 1; // Set initial game state to 1
     private boolean gameStarted = false; // Track if the game has started
     private int fps = 60; // Target FPS
     private double drawInterval = 1000000000.0 / fps; // Interval in nanoseconds for each frame
     private long lastTime = System.nanoTime(); // Last time the frame was drawn
-    public MainLogic() {
-        // Constructor logic (if needed)
-    }
-    public MainLogic(GameGraphics.GamePanel gamePanel) {
+
+    public void setGamePanel(GameGraphics.GamePanel gamePanel) {
         this.gamePanel = gamePanel;
     }
+
     public void initialize() {
-        gameWindow.setFocusable(true);
-        gameWindow.addKeyListener(new KeyReader());
-        gameWindow.addMouseListener(new MouseAdapter() {
+        knight = new Knight(150,150,150,150,"stick.png",10,10,10,10);
+        gamePanel.setFocusable(true);
+        gamePanel.addKeyListener(new KeyReader());
+        gamePanel.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                // Check if the game has not started yet
                 if (!gameStarted) {
                     gameStarted = true;  // Set the game as started
                     gameState = 2;       // Change game state to 2
@@ -39,6 +44,7 @@ public class MainLogic {
             }
         });
     }
+
 
     public class KeyReader implements KeyListener {
         public boolean knightSpawn, archerSpawn, tankSpawn, skyAttackSpawn;
@@ -73,16 +79,19 @@ public class MainLogic {
             if (e.getKeyCode() == KeyEvent.VK_H) ENEMYskyAttackSpawn = false;
         }
     }
-
+    public void startGameThread() {
+        gameThread = new Thread(this);
+        gameThread.start();
+    }
+    @Override
     public void run() {
-        while (gameState != 0) {
-            long currentTime = System.nanoTime();
-            double delta = (currentTime - lastTime) / drawInterval;
-
+        while (gameThread != null) {
+            currentTime = System.nanoTime();
+            delta += (currentTime - lastTime) / drawInterval;
+            lastTime = currentTime;
             if (delta >= 1) {
-
-                gameWindow.repaint(); // Repaint the screen to update graphics
-                lastTime = currentTime;
+                gamePanel.repaint();
+                delta--;
             }
         }
     }
