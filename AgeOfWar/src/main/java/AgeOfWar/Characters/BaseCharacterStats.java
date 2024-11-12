@@ -55,4 +55,12 @@ public class BaseCharacterStats {
     public Image getAttackImage() {
         return attackImage;
     }
+
+    public int getWidth() {
+        return width;
+    }
+
+    public int getHeight() {
+        return height;
+    }
 }

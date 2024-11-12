@@ -6,13 +6,16 @@ import AgeOfWar.Characters.Tank;
 import AgeOfWar.Graphics.BackGroundScreens;
 import AgeOfWar.Graphics.GameGraphics;
 import javax.swing.*;
-import java.awt.*;
 import java.awt.event.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 public class MainLogic implements Runnable {
     private GameGraphics gameGraphics;
-    private Knight knight;
+    private List<Knight> knights;  // List to store knights
+    private List<Knight> enemyKnights;  // List to store knights
+
     private Tank tank;
     private Archer archer;
     private Collisions collisions;
@@ -36,9 +39,9 @@ public class MainLogic implements Runnable {
     }
 
     public void initialize() {
-        knight = new Knight(100, 100, 255, 550, "stick.png", "stick.png", "stick.png", 100, 20, 10, 50);
+        knights = new ArrayList<>();
+        enemyKnights = new ArrayList<>();
 
-        System.out.println(knight);
         keyReader = new KeyReader();
         gamePanel.setFocusable(true);
         gamePanel.addKeyListener(keyReader);
@@ -56,57 +59,31 @@ public class MainLogic implements Runnable {
 
 
 
-    public void update() {
-        gamePanel.repaint();
+
+    private void spawnKnight() {
+        knights.add(new Knight(150, 730, 222, 222, "knight.png", "knight.png", "knight.png", 100, 20, 10, 50));
+        System.out.println(" Knight spawned");
+
     }
 
-    // Handle game updates based on key events
-        //if (keyReader.knightSpawn) {
-            // Logic to spawn knight
-       // }
-
-       // if (keyReader.archerSpawn) {
-            // Logic to spawn archer
-     //   }
-
-        // Additional updates for other spawn types like tank, etc.
-   // }
-
-    private void spawnRocket() {
-        Random random = new Random();
-        int randPick = random.nextInt(1) + 1; // Randomly spawn 1 rocket
-        for (int i = 0; i < randPick; i++) {
-            int randCorner = random.nextInt(2);
-            // Logic to spawn rockets at random positions
-        }
-    }
-
-    public void startGameThread() {
-        if (gameThread == null) {  // Prevent creating a new thread if one already exists
-            gameThread = new Thread(this);
-            gameThread.start();
-        }
+    private void spawnEnemyKnight() {
+        enemyKnights.add(new Knight(700, 730, 222, 222, "enemyKnight.png", "enemyKnight.png", "enemyKnight.png", 100, 20, 10, 50));
+        System.out.println("enemy Knight spawned");
     }
 
 
-    public void resetGame() {
-        gameState = 1; // Reset to Intro state
-        gameStarted = false;
-        gamePanel.repaint();
-    }
 
-    @Override
-    public void run() {
-        while (gameThread != null) {
-            currentTime = System.nanoTime();
-            delta += (currentTime - lastTime) / drawInterval;
-            lastTime = currentTime;
-            if (delta >= 1) {
-                update();
-                delta--;
-            }
-        }
-    }
+
+
+
+
+
+
+
+
+
+
+
 
     public class KeyReader implements KeyListener {
         public boolean knightSpawn, archerSpawn, tankSpawn, skyAttackSpawn;
@@ -142,79 +119,68 @@ public class MainLogic implements Runnable {
         }
     }
 
+
+
+    public void startGameThread() {
+        if (gameThread == null) {  // Prevent creating a new thread if one already exists
+            gameThread = new Thread(this);
+            gameThread.start();
+        }
+    }
+
+
+
+    @Override
+    public void run() {
+        while (gameThread != null) {
+            currentTime = System.nanoTime();
+            delta += (currentTime - lastTime) / drawInterval;
+            lastTime = currentTime;
+            if (delta >= 1) {
+                update();
+                delta--;
+            }
+        }
+    }
+    public void update() {
+        if (keyReader.knightSpawn) {
+            spawnKnight();  // Spawn a new knight when "A" is pressed
+            keyReader.knightSpawn = false;  // Reset the spawn flag
+        }
+        if (keyReader.ENEMYknightSpawn) {
+            spawnEnemyKnight();  // Spawn a new knight when "A" is pressed
+            keyReader.ENEMYknightSpawn = false;  // Reset the spawn flag
+        }
+        gamePanel.repaint();
+    }
+
+
+    public void resetGame() {
+        gameState = 1; // Reset to Intro state
+        gameStarted = false;
+        gamePanel.repaint();
+    }
+
+
     public int getGameState() {
         return gameState;
-    }
-
-    public boolean isGameStarted() {
-        return gameStarted;
-    }
-
-    public Thread getGameThread() {
-        return gameThread;
-    }
-
-    public JPanel getGamePanel() {
-        return gamePanel;
     }
 
     public KeyReader getKeyReader() {
         return keyReader;
     }
 
-    public Knight getKnight() {
-        return knight;
+    public List<Knight> getKnights() {
+        return knights;
+    }
+
+    public List<Knight> getEnemyKnights() {
+        return enemyKnights;
     }
 
     public Tank getTank() {
         return tank;
     }
 
-    public Archer getArcher() {
-        return archer;
-    }
 
-    public Hitboxes getHitboxes() {
-        return hitboxes;
-    }
-
-    public Attack getAttack() {
-        return attack;
-    }
-
-    public Moving getMoving() {
-        return moving;
-    }
-
-    public Collisions getCollisions() {
-        return collisions;
-    }
-
-    public BackGroundScreens getBackGroundScreens() {
-        return backGroundScreens;
-    }
-
-    public long getCurrentTime() {
-        return currentTime;
-    }
-
-    public double getDelta() {
-        return delta;
-    }
-
-    public int getFps() {
-        return fps;
-    }
-
-    public long getLastTime() {
-        return lastTime;
-    }
-
-    public double getDrawInterval() {
-        return drawInterval;
-    }
-
-    public GameGraphics getGameGraphics() {
-        return gameGraphics;
-    }
 }

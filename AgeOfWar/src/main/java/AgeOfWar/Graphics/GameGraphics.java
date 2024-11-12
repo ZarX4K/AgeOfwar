@@ -55,7 +55,6 @@ public class GameGraphics extends JFrame {
             super.paintComponent(g);
 
 
-
             if (mainLogic.getGameState() == 1) {
                 g.drawImage(backGroundScreens.getIntroImage(), 0, 0, null);
             } else if (mainLogic.getGameState() == 2) {
@@ -63,9 +62,14 @@ public class GameGraphics extends JFrame {
 
             }
             if (mainLogic.getGameState() == 2) {
-                mainLogic.getKnight().draw(g);
+                for (Knight knight : mainLogic.getKnights()) {
+                    g.drawImage(knight.getWalkImage(), knight.getX(), knight.getY(), knight.getWidth(), knight.getHeight(), null);
 
+                }
+                for (Knight knight : mainLogic.getEnemyKnights()) {
+                    g.drawImage(knight.getWalkImage(), knight.getX(), knight.getY(), knight.getWidth(), knight.getHeight(), null);
 
+                }
             }
         }
     }

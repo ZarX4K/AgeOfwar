@@ -9,4 +9,5 @@ public class Knight extends BaseCharacterStats {
         super(x, y, width, height, standImage, walkImage, attackImage, health, damage, priceBuy);
         this.critical = critical;
     }
+
 }
