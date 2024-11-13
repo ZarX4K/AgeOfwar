@@ -6,6 +6,7 @@ import AgeOfWar.Characters.Tank;
 import AgeOfWar.Graphics.BackGroundScreens;
 import AgeOfWar.Graphics.GameGraphics;
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,6 +22,7 @@ public class MainLogic implements Runnable {
     private Collisions collisions;
     private Moving moving;
     private Hitboxes hitboxes;
+
     private  Attack attack;
     private BackGroundScreens backGroundScreens;
     private int gameState = 1; // 1: Intro Screen, 2: In-Game, 3: Game Over
@@ -41,7 +43,9 @@ public class MainLogic implements Runnable {
     public void initialize() {
         knights = new ArrayList<>();
         enemyKnights = new ArrayList<>();
-
+        hitboxes = new Hitboxes();
+        moving = new Moving();  // Initialize `moving` first
+        collisions = new Collisions(moving);  // Now pass `moving` to `Collisions`
         keyReader = new KeyReader();
         gamePanel.setFocusable(true);
         gamePanel.addKeyListener(keyReader);
@@ -51,7 +55,7 @@ public class MainLogic implements Runnable {
                 if (!gameStarted) {
                     gameStarted = true;
                     gameState = 2; // Game state changes to In-Game
-                    System.out.println("Game state changed to In-Game!"); // Debugging statement
+                    System.out.println("Game state changed to In-Game!");
                 }
             }
         });
@@ -60,21 +64,79 @@ public class MainLogic implements Runnable {
 
 
 
-    private void spawnKnight() {
-        knights.add(new Knight(150, 730, 222, 222, "knight.png", "knight.png", "knight.png", 100, 20, 10, 50));
-        System.out.println(" Knight spawned");
 
+
+    private void spawnKnight() {
+        Knight newKnight = new Knight(150, 730, 222, 222, "knight.png", "knight.png", "knight.png", 100, 20, 10, 3, true, 10);  // Added boolean value
+        knights.add(newKnight);
+        System.out.println("Knight spawned");
+        // Make sure to update the targeting logic for the new knight
+        for (Knight knight : knights) {
+            Knight target = moving.findClosestEnemy(knight, enemyKnights);
+            moving.moveCharacterTowards(knight, target);  // Move the knight towards the target
+        }
     }
 
     private void spawnEnemyKnight() {
-        enemyKnights.add(new Knight(700, 730, 222, 222, "enemyKnight.png", "enemyKnight.png", "enemyKnight.png", 100, 20, 10, 50));
-        System.out.println("enemy Knight spawned");
+        Knight newEnemyKnight = new Knight(1400, 730, 222, 222, "enemyKnight.png", "enemyKnight.png", "enemyKnight.png", 100, 20, 10, 3,true,10);
+        enemyKnights.add(newEnemyKnight);
+        System.out.println("Enemy Knight spawned");
+        // Update the targeting logic for the new enemy knight
+        for (Knight enemyKnights : enemyKnights) {
+            Knight target = moving.findClosestEnemy(enemyKnights, knights);
+            moving.moveCharacterTowards(enemyKnights, target);  // Update the enemy's target
+        }
     }
 
 
 
 
 
+
+    public void update() {
+        if (keyReader.knightSpawn) {
+            spawnKnight();
+            keyReader.knightSpawn = false;
+        }
+        if (keyReader.ENEMYknightSpawn) {
+            spawnEnemyKnight();
+            keyReader.ENEMYknightSpawn = false;
+        }
+
+        // Temporary lists to store new knights that need to be added
+        List<Knight> knightsToAdd = new ArrayList<>();
+        List<Knight> enemyKnightsToAdd = new ArrayList<>();
+
+        // Move and target logic
+        for (Knight knight : knights) {
+            if (knight.isAlive()) { // Check if the knight is alive
+                Knight target = moving.findClosestEnemy(knight, enemyKnights);
+                if (target != null) {
+                    moving.moveCharacterTowards(knight, target);
+                }
+            }
+        }
+
+        for (Knight enemyKnight : enemyKnights) {
+            if (enemyKnight.isAlive()) { // Check if the enemy knight is alive
+                Knight target = moving.findClosestEnemy(enemyKnight, knights);
+                if (target != null) {
+                    moving.moveCharacterTowards(enemyKnight, target);
+                }
+            }
+        }
+
+        // Collision detection
+        List<Rectangle> knightHitboxes = hitboxes.getAllKnightHitboxes(knights);
+        List<Rectangle> enemyKnightHitboxes = hitboxes.getAllKnightHitboxes(enemyKnights);
+        collisions.checkCollisions(knights, enemyKnights);
+
+        // After all the movements, add the new knights to the main list
+        knights.addAll(knightsToAdd);
+        enemyKnights.addAll(enemyKnightsToAdd);
+
+        gamePanel.repaint();
+    }
 
 
 
@@ -142,17 +204,7 @@ public class MainLogic implements Runnable {
             }
         }
     }
-    public void update() {
-        if (keyReader.knightSpawn) {
-            spawnKnight();  // Spawn a new knight when "A" is pressed
-            keyReader.knightSpawn = false;  // Reset the spawn flag
-        }
-        if (keyReader.ENEMYknightSpawn) {
-            spawnEnemyKnight();  // Spawn a new knight when "A" is pressed
-            keyReader.ENEMYknightSpawn = false;  // Reset the spawn flag
-        }
-        gamePanel.repaint();
-    }
+
 
 
     public void resetGame() {
@@ -162,8 +214,17 @@ public class MainLogic implements Runnable {
     }
 
 
+
     public int getGameState() {
         return gameState;
+    }
+
+    public Collisions getCollisions() {
+        return collisions;
+    }
+
+    public Hitboxes getHitboxes() {
+        return hitboxes;
     }
 
     public KeyReader getKeyReader() {
