@@ -14,12 +14,13 @@ public class BaseCharacterStats {
     protected int priceBuy;
     private int moveSpeed;
     private boolean isMoving;
+    public boolean isEnemy;
 
     protected Image standImage;
     protected Image walkImage;
     protected Image attackImage;
 
-    public BaseCharacterStats(int x, int y, int width, int height, String standImagePath, String walkImagePath, String attackImagePath, int health, int damage, int priceBuy, int moveSpeed, boolean isMoving) {
+    public BaseCharacterStats(int x, int y, int width, int height, String standImagePath, String walkImagePath, String attackImagePath, int health, int damage, int priceBuy, int moveSpeed, boolean isMoving, boolean isEnemy) {
         this.x = x;
         this.y = y;
         this.width = width;
@@ -32,6 +33,7 @@ public class BaseCharacterStats {
         this.priceBuy = priceBuy;
         this.moveSpeed = moveSpeed;
         this.isMoving = isMoving;
+        this.isEnemy = isEnemy;
     }
 
     public void draw(Graphics g) {
@@ -59,11 +61,9 @@ public class BaseCharacterStats {
     public boolean isMoving() {
         return isMoving;
     }
-    public void move(int deltaX, int deltaY) {
-        if (isMoving) {
-            this.x += deltaX;
-            this.y += deltaY;
-        }
+
+    public boolean isEnemy() {
+        return isEnemy;
     }
     public long getLastAttackTime() {
         return lastAttackTime;

@@ -1,51 +1,57 @@
 package AgeOfWar.Logic;
 
 import AgeOfWar.Characters.Knight;
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Collisions {
-
     private Attack attack;
+    private Hitboxes hitboxes;
+    private Moving moving;
 
-    public Collisions(Moving moving) {
-        this.attack = new Attack(moving);  // Pass the moving instance here
+    public Collisions(Moving moving, Hitboxes hitboxes, Attack attack) {
+        this.moving = moving;
+        this.hitboxes = hitboxes;
+        this.attack = attack;
     }
+
     public void checkCollisions(List<Knight> knights, List<Knight> enemyKnights) {
-        List<Knight> knightsToRemove = new ArrayList<>();
-        List<Knight> enemyKnightsToRemove = new ArrayList<>();
+        List<Knight> defeatedKnights = new ArrayList<>();
+        List<Knight> defeatedEnemyKnights = new ArrayList<>();
 
-        for (int i = 0; i < knights.size(); i++) {
-            Knight knight = knights.get(i);
-            if (!knight.isAlive()) continue;
+        for (Knight knight : new ArrayList<>(knights)) {
+            Knight nearestEnemy = findNearestEnemy(knight, enemyKnights);
+            if (nearestEnemy != null && hitboxes.knightsCollide(knight, nearestEnemy)) {
+                moving.stopKnight(knight);
+                moving.stopKnight(nearestEnemy);
+                attack.performAttack(knight, nearestEnemy, knights, enemyKnights);
 
-            for (int j = 0; j < enemyKnights.size(); j++) {
-                Knight enemyKnight = enemyKnights.get(j);
-                if (!enemyKnight.isAlive()) continue;
-
-                // Kontrola kolize hitboxů
-                if (new Rectangle(knight.getX(), knight.getY(), knight.getWidth(), knight.getHeight())
-                        .intersects(new Rectangle(enemyKnight.getX(), enemyKnight.getY(), enemyKnight.getWidth(), enemyKnight.getHeight()))) {
-
-                    // Proveď útok
-                    attack.performAttack(knight, enemyKnight, knights, enemyKnights);
-                    knight.setMoving(false);
-                    enemyKnight.setMoving(false);
-
-                    // Přidej do seznamu pro odstranění, pokud je mrtvý
-                    if (!knight.isAlive() && !knightsToRemove.contains(knight)) {
-                        knightsToRemove.add(knight);
-                    }
-                    if (!enemyKnight.isAlive() && !enemyKnightsToRemove.contains(enemyKnight)) {
-                        enemyKnightsToRemove.add(enemyKnight);
-                    }
+                if (!knight.isAlive()) {
+                    defeatedKnights.add(knight);
+                }
+                if (!nearestEnemy.isAlive()) {
+                    defeatedEnemyKnights.add(nearestEnemy);
                 }
             }
         }
 
-        // Odstraň mrtvé rytíře mimo hlavní smyčku
-        knights.removeAll(knightsToRemove);
-        enemyKnights.removeAll(enemyKnightsToRemove);
+        // Remove all defeated knights after the iteration
+        knights.removeAll(defeatedKnights);
+        enemyKnights.removeAll(defeatedEnemyKnights);
+    }
+
+    private Knight findNearestEnemy(Knight knight, List<Knight> enemyKnights) {
+        Knight nearestEnemy = null;
+        int nearestDistance = Integer.MAX_VALUE;
+
+        for (Knight enemyKnight : enemyKnights) {
+            int distance = Math.abs(knight.getX() - enemyKnight.getX());
+            if (distance < nearestDistance) {
+                nearestDistance = distance;
+                nearestEnemy = enemyKnight;
+            }
+        }
+        return nearestEnemy;
     }
 }
+

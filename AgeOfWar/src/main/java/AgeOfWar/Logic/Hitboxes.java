@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Hitboxes {
-
     public List<Rectangle> getAllKnightHitboxes(List<Knight> knights) {
         List<Rectangle> hitboxes = new ArrayList<>();
         for (Knight knight : knights) {
@@ -15,6 +14,9 @@ public class Hitboxes {
         return hitboxes;
     }
 
-    // Metoda pro získání hitboxů pro další typy postav, pokud je to potřeba
-    // Například: getAllArcherHitboxes, getAllTankHitboxes, atd.
+    public boolean knightsCollide(Knight knight, Knight enemyKnight) {
+        Rectangle hitbox1 = new Rectangle(knight.getX(), knight.getY(), knight.getWidth(), knight.getHeight());
+        Rectangle hitbox2 = new Rectangle(enemyKnight.getX(), enemyKnight.getY(), enemyKnight.getWidth(), enemyKnight.getHeight());
+        return hitbox1.intersects(hitbox2);
+    }
 }
